@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WayVR Theme Configurator</title>
+<meta name="description" content="Create, preview and export custom color palettes for the WayVR dashboard.">
+<link rel="icon" type="image/png" href="img/wayvr.png">
+<link rel="apple-touch-icon" href="img/wayvr.png">
+<link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+
+<header class="topbar">
+	<div class="topbar__brand">
+		<img class="topbar__logo" src="img/wayvr.png" alt="" width="34" height="34">
+		<div>
+			<h1 class="topbar__title">Theme Configurator</h1>
+			<p class="topbar__sub">Design a custom palette for the WayVR dashboard</p>
+		</div>
+	</div>
+
+	<div class="topbar__export">
+		<div class="field field--inline">
+			<label class="field__label" for="theme-name">Theme name</label>
+			<input class="field__input" id="theme-name" type="text" placeholder="my-theme" autocomplete="off" spellcheck="false">
+		</div>
+		<div class="topbar__buttons">
+			<button class="ui-btn ui-btn--ghost" id="copy-json" type="button" title="Copy palette JSON to clipboard">Copy JSON</button>
+			<button class="ui-btn ui-btn--primary" id="download-json" type="button" title="Download palette (Ctrl+S)">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+				Download
+			</button>
+		</div>
+	</div>
+</header>
+
+<p class="notice" id="notice" role="status" aria-live="polite" hidden></p>
+
+<main class="layout">
+
+	<!-- ============ EDITOR ============ -->
+	<aside class="sidebar">
+		<section class="card">
+			<div class="card__head">
+				<h2 class="card__title">Presets</h2>
+				<button class="ui-btn ui-btn--quiet" id="reset-theme" type="button">Reset to default</button>
+			</div>
+			<div class="presets" id="presets"></div>
+		</section>
+
+		<section class="card">
+			<div class="card__head">
+				<h2 class="card__title">Colors</h2>
+				<div class="card__head-actions">
+					<button class="ui-btn ui-btn--quiet" id="randomize" type="button" title="Generate a random but readable palette">Randomize</button>
+					<button class="ui-btn ui-btn--quiet" id="import-json" type="button" title="Load an existing palette file">Import</button>
+					<input id="import-file" type="file" accept="application/json,.json" hidden>
+				</div>
+			</div>
+			<div id="color-groups"></div>
+		</section>
+
+		<section class="card">
+			<h2 class="card__title">Export</h2>
+			<p class="card__hint">
+				Save the palette, then copy it to
+				<code>~/.config/wayvr/palettes/</code>
+				&mdash; the file name becomes the palette name in the dashboard's color picker.
+			</p>
+			<output class="filename" id="filename-out">&mdash;</output>
+			<pre class="json-out" id="json-out" tabindex="0" aria-label="Palette JSON"></pre>
+		</section>
+	</aside>
+
+	<!-- ============ PREVIEW ============ -->
+	<div class="content">
+
+		<section class="card card--flush">
+			<div class="card__head card__head--pad">
+				<h2 class="card__title">Live preview</h2>
+				<div class="preview-modes" id="preview-modes" role="tablist" aria-label="Preview surface">
+					<button class="preview-modes__btn is-active" type="button" role="tab" data-surface="dark" aria-selected="true">Dashboard</button>
+					<button class="preview-modes__btn" type="button" role="tab" data-surface="components" aria-selected="false">Components</button>
+				</div>
+			</div>
+
+			<div class="preview-scroll">
+				<!-- ---- Dashboard mock ---- -->
+				<div class="preview" id="preview" data-view="dark">
+
+					<section class="dash" aria-label="WayVR dashboard mock">
+						<header class="dash__bar">
+							<span class="dash__clock">11:42</span>
+							<span class="dash__date">Wednesday, 30 September</span>
+							<span class="dash__pill">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="17" height="10" rx="2.5"/><path d="M21 10.5v3"/><rect class="fill" x="4" y="9" width="11" height="6" rx="1"/></svg>
+								86%
+							</span>
+						</header>
+
+						<div class="dash__grid">
+
+							<div class="tile tile--clock">
+								<div class="tile__label">Local time</div>
+								<div class="clock__big">11:42<small>AM</small></div>
+								<div class="clock__zones">
+									<span class="chip">Oslo <b>11:42</b></span>
+									<span class="chip">New York <b>05:42</b></span>
+									<span class="chip">Tokyo <b>00:42</b></span>
+								</div>
+							</div>
+
+							<div class="tile">
+								<div class="tile__label">Pinned apps</div>
+								<div class="apps">									<div class="app is-active"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="M4 10h16"/></svg><span>Files</span></div>
+									<div class="app"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16"/></svg><span>Browser</span></div>
+									<div class="app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><span>Music</span></div>
+									<div class="app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg><span>Terminal</span></div>
+									<div class="app"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8"/></svg><span>Settings</span></div>
+									<div class="app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18"/></svg><span>Store</span></div>
+								</div>
+							</div>
+
+							<div class="tile">
+								<div class="tile__label">Now playing</div>
+								<div class="media">
+									<div class="media__art"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/></svg></div>
+									<div class="media__meta">
+										<div class="media__title">Weightless</div>
+										<div class="media__artist">Marconi Union</div>
+										<div class="media__bar"><i></i></div>
+										<div class="media__time">1:24 &nbsp;/&nbsp; 8:08</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="tile tile--system">
+								<div class="tile__label">System</div>
+								<ul class="rows">
+									<li class="row row--ok"><span class="row__dot"></span>Controllers <b>2 connected</b></li>
+									<li class="row row--warn"><span class="row__dot"></span>Fix floor <b>2:41</b></li>
+									<li class="row row--bad"><span class="row__dot"></span>SteamVR <b>not detected</b></li>
+								</ul>
+								<button class="w-btn w-btn--danger w-btn--sm" type="button">Restart session</button>
+							</div>
+
+						</div>
+
+						<div class="toast">
+							<span class="toast__dot"></span>
+							<div><b>Theme reloaded</b><br>Press <kbd>Tab</kbd> to cycle panels</div>
+						</div>
+					</section>
+
+					<!-- ---- Component gallery ---- -->
+					<section class="gallery" aria-label="Component gallery">
+
+						<div class="gal-block">
+							<h3 class="gal-title">Buttons</h3>
+							<div class="gal-row">
+								<button class="w-btn w-btn--primary" type="button">Primary</button>
+								<button class="w-btn w-btn--secondary" type="button">Secondary</button>
+								<button class="w-btn w-btn--tertiary" type="button">Tertiary</button>
+							</div>
+							<div class="gal-row">
+								<button class="w-btn w-btn--success" type="button">Success</button>
+								<button class="w-btn w-btn--danger" type="button">Danger</button>
+								<button class="w-btn w-btn--ghost" type="button">Ghost</button>
+								<button class="w-btn w-btn--primary" type="button" disabled>Disabled</button>
+							</div>
+						</div>
+
+						<div class="gal-block">
+							<h3 class="gal-title">Selection</h3>
+							<div class="gal-row">
+								<label class="w-check"><input type="checkbox" checked><i></i><span>Checked</span></label>
+								<label class="w-check"><input type="checkbox"><i></i><span>Unchecked</span></label>
+							</div>
+							<div class="gal-row">
+								<label class="w-check"><input type="radio" name="demo" checked><i></i><span>Radio on</span></label>
+								<label class="w-check"><input type="radio" name="demo"><i></i><span>Radio off</span></label>
+							</div>
+							<div class="gal-row gal-row--stack">
+								<input class="w-input" type="text" value="Edit me" aria-label="Edit box example">
+								<input class="w-input" type="text" placeholder="Placeholder" aria-label="Edit box placeholder example">
+							</div>
+						</div>
+
+						<div class="gal-block">
+							<h3 class="gal-title">Sliders</h3>
+							<div class="gal-row gal-row--stack">
+								<input class="w-slider" type="range" value="62" aria-label="Volume">
+								<input class="w-slider" type="range" value="25" aria-label="Brightness">
+							</div>
+						</div>
+
+						<div class="gal-block">
+							<h3 class="gal-title">Tabs</h3>
+							<div class="w-tabs">
+								<button class="w-tab is-active" type="button">Overview</button>
+								<button class="w-tab" type="button">Audio</button>
+								<button class="w-tab" type="button">Network</button>
+								<button class="w-tab" type="button">About</button>
+							</div>
+						</div>
+
+						<div class="gal-block">
+							<h3 class="gal-title">Text</h3>
+							<div class="gal-row gal-row--stack">
+								<p class="t-plain">On Background &mdash; default body text.</p>
+								<p class="t-primary">On Primary &mdash; headings and active labels.</p>
+								<p class="t-secondary">On Secondary &mdash; highlighted text.</p>
+								<p class="t-tertiary">On Tertiary &mdash; hover and focus accents.</p>
+								<p class="t-shadow">Shadow &mdash; text shadows and elevation.</p>
+							</div>
+						</div>
+
+						<div class="gal-block">
+							<h3 class="gal-title">Surfaces &amp; accents</h3>
+							<div class="swatches">
+								<div class="swatch" style="background:var(--background);border-color:var(--outline)"><span>Background</span></div>
+								<div class="swatch" style="background:var(--background-variant);border-color:var(--outline)"><span>Variant</span></div>
+								<div class="swatch" style="background:var(--background-contrast);border-color:var(--outline)"><span>Contrast</span></div>
+								<div class="swatch" style="background:var(--primary)"><span class="on-primary">Primary</span></div>
+								<div class="swatch" style="background:var(--secondary)"><span class="on-secondary">Secondary</span></div>
+								<div class="swatch" style="background:var(--tertiary)"><span class="on-tertiary">Tertiary</span></div>
+								<div class="swatch" style="background:var(--success)"><span class="on-success">Success</span></div>
+								<div class="swatch" style="background:var(--danger)"><span class="on-danger">Danger</span></div>
+								<div class="swatch" style="background:var(--outline)"><span>Outline</span></div>
+								<div class="swatch" style="background:var(--highlight)"><span>Highlight</span></div>
+								<div class="swatch" style="background:var(--shadow)"><span>Shadow</span></div>
+							</div>
+						</div>
+
+						<div class="gal-block">
+							<h3 class="gal-title">Elevation</h3>
+							<div class="elev">
+								<div class="elev__box elev__box--1">outline</div>
+								<div class="elev__box elev__box--2">highlight</div>
+								<div class="elev__box elev__box--3">shadow</div>
+							</div>
+						</div>
+
+					</section>
+				</div>
+			</div>
+		</section>
+
+		<section class="card">
+			<div class="card__head">
+				<h2 class="card__title">Contrast report</h2>
+				<span class="card__meta" id="contrast-summary">&mdash;</span>
+			</div>
+			<p class="card__hint">
+				Every <code>on_</code> color should stay readable on the color it sits on.
+				Ratio is the WCAG 2.1 contrast ratio &mdash; 4.5:1 or better is required for body text.
+			</p>
+			<div class="contrast" id="contrast"></div>
+		</section>
+
+	</div>
+</main>
+
+<footer class="footer">
+	<p>
+		Built for <a href="https://github.com/wayvr-org" target="_blank" rel="noopener noreferrer">WayVR</a>
+		by <a href="https://github.com/F1dg3tXD" target="_blank" rel="noopener noreferrer">F1dg3tXD</a>
+		&mdash; palette format documented in the
+		<a href="https://wayvr.org/docs/basics/customization/#custom-colors" target="_blank" rel="noopener noreferrer">UI customization guide</a>.
+	</p>
+</footer>
+
+<noscript>
+	<p class="notice notice--error">This tool needs JavaScript enabled to build and preview palettes.</p>
+</noscript>
+
+<script src="scripts/index.js"></script>
+</body>
+</html>
